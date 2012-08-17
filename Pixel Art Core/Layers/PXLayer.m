@@ -186,6 +186,11 @@
 	PXImage_rotateByDegrees(image, degrees);
 }
 
+- (void)rotateSubrectByDegrees:(int)degrees atRect:(NSRect)subrect
+{
+    PXImage_rotateRectByDegrees(image, degrees, subrect);
+}
+
 - (void)moveToPoint:(NSPoint)newOrigin
 {
 	origin = newOrigin;

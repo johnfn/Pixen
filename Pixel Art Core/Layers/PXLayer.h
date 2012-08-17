@@ -76,6 +76,8 @@
 
 - (void)rotateByDegrees:(int)degrees;
 
+- (void)rotateSubrectByDegrees:(int)degrees atRect:(NSRect)subrect;
+
 - (void)applyImageRep:(NSBitmapImageRep *)imageRep;
 
 - (NSData *)colorData;

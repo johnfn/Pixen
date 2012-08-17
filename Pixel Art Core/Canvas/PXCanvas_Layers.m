@@ -259,6 +259,33 @@
 	} [self endUndoGrouping];
 }
 
+- (void)rotateLayerSubrect:(PXLayer *)layer byDegrees:(int)degrees atRect:(NSRect)subrect
+{
+	if (![layers containsObject:layer])
+		return;
+	
+	[self beginUndoGrouping]; {
+		[[[self undoManager] prepareWithInvocationTarget:self] rotateLayer:layer
+																 byDegrees:360 - degrees];
+		
+		NSSize previousCanvasSize = [self size];
+		
+		[layer rotateSubrectByDegrees:degrees atRect:subrect];
+		
+		if (!NSEqualSizes([self size], previousCanvasSize)) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:PXCanvasSizeChangedNotificationName
+																object:self];
+		}
+		else {
+			if (!NSEqualSizes([layer size], previousCanvasSize))
+				[layer setSize:previousCanvasSize];
+		}
+		
+		[self changed];
+	} [self endUndoGrouping];
+}
+
+
 - (void)duplicateLayerAtIndex:(NSUInteger)index
 {
 	PXLayer *result = [[layers objectAtIndex:index] copy];

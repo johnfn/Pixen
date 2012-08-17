@@ -48,6 +48,7 @@ void PXImage_flipHorizontally(PXImage *self);
 void PXImage_flipVertically(PXImage *self);
 void PXImage_translate(PXImage *self, int deltaX, int deltaY, BOOL wrap);
 void PXImage_rotateByDegrees(PXImage *self, int degrees);
+void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect);
 
 void PXImage_setSize(PXImage *self, NSSize newSize, NSPoint origin, PXColor backgroundColor);
 
