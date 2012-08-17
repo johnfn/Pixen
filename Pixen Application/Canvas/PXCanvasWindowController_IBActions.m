@@ -88,6 +88,21 @@
 	[canvas rotateByDegrees:180];
 }
 
+- (IBAction)rotateSelectionCounterclockwise:(id)sender
+{
+    
+}
+- (IBAction)rotateSelectionClockwise:(id)sender
+{
+    
+}
+- (IBAction)rotateSelection180:(id)sender
+{
+    NSLog(@"Hello World!");
+}
+
+
+
 - (IBAction)resizeCanvas:(id)sender
 {
 	NSData *colorData = [[NSUserDefaults standardUserDefaults] objectForKey:PXDefaultNewDocumentBackgroundColor];

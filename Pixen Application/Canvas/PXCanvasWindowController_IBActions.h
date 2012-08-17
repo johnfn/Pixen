@@ -10,13 +10,13 @@
 
 @interface PXCanvasWindowController (IBActions) < PXGridSettingsPrompterDelegate >
 
-- (void)rotateLayerCounterclockwise:(id)sender;
-- (void)rotateLayerClockwise:(id)sender;
-- (void)rotateLayer180:(id)sender;
+- (IBAction)rotateLayerCounterclockwise:(id)sender;
+- (IBAction)rotateLayerClockwise:(id)sender;
+- (IBAction)rotateLayer180:(id)sender;
+- (IBAction)rotateSelectionCounterclockwise:(id)sender;
+- (IBAction)rotateSelectionClockwise:(id)sender;
+- (IBAction)rotateSelection180:(id)sender;
 
-- (IBAction)rotateCounterclockwise:(id)sender;
-- (IBAction)rotateClockwise:(id)sender;
-- (IBAction)rotate180:(id)sender;
 - (IBAction)resizeCanvas:(id)sender;
 - (IBAction)scaleCanvas:(id)sender;
 - (IBAction)increaseOpacity:(id)sender;
