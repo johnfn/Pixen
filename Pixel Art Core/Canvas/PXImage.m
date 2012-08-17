@@ -593,7 +593,7 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
     
     int oldWidth = self->width;
 	int oldHeight = self->height;
-	
+    	
 	/*if (degrees != 180)
 	{
 		self->height = oldWidth;
@@ -604,13 +604,13 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
 	{
 		for (i = 0; i < oldWidth; i++)
 		{
-			int x = i, y = j;
+            int x = i, y = j;
 			
             if (NSPointInRect(NSMakePoint(x, y), subrect)) {
                 if (degrees == 270)
                 {
-                    x = j;
-                    y = subrect.origin.y + subrect.size.height - 1 - (i - subrect.origin.y);
+                    x = self->height - j - 1;
+                    y = subrect.origin.y + subrect.size.height - 1 - (i - subrect.origin.x);
                 }
                 else if (degrees == 180)
                 {
@@ -619,8 +619,8 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
                 }
                 else if (degrees == 90)
                 {
-                    x = subrect.origin.x + subrect.size.width - 1 - (j - subrect.origin.x);
-                    y = i;
+                    x = subrect.origin.x + subrect.size.width - 1 - (j - subrect.origin.y);
+                    y = self->height - i - 1;
                 }
             }
 			

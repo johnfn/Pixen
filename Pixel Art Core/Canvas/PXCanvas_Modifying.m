@@ -208,7 +208,7 @@ NSUInteger PointSizeF (const void *item);
 }
 
 - (void)rotateSelectionByDegrees:(int)degrees
-{
+{    
     [self beginUndoGrouping];
     for (PXLayer *current in layers)
     {
