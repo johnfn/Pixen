@@ -90,15 +90,17 @@
 
 - (IBAction)rotateSelectionCounterclockwise:(id)sender
 {
-    
+    [canvas rotateSelectionByDegrees:90];
 }
+
 - (IBAction)rotateSelectionClockwise:(id)sender
 {
-    
+    [canvas rotateSelectionByDegrees:270];
 }
+
 - (IBAction)rotateSelection180:(id)sender
 {
-    NSLog(@"Hello World!");
+    [canvas rotateSelectionByDegrees:180];
 }
 
 

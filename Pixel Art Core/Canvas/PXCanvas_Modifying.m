@@ -207,6 +207,24 @@ NSUInteger PointSizeF (const void *item);
     [self endUndoGrouping];
 }
 
+- (void)rotateSelectionByDegrees:(int)degrees
+{
+    unsigned int width = NSMaxX(canvasRect);
+    unsigned int height = NSMaxY(canvasRect);
+    
+    [self beginUndoGrouping];
+    
+    for (int i = MAX(NSMinX(selectedRect), 0); i < MIN(NSMaxX(selectedRect), width); i++)
+    {
+        for (int j = MAX(NSMinY(selectedRect), 0); j < MIN(NSMaxY(selectedRect), height); j++)
+        {
+            NSLog(@"%d %d", i, j);
+        }
+    }
+    
+    [self endUndoGrouping];
+}
+
 - (void)changed
 {
 	[self changedInRect:NSMakeRect(0,0,[self size].width,[self size].height)];

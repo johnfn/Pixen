@@ -574,6 +574,65 @@ void PXImage_rotateByDegrees(PXImage *self, int degrees)
 	PXImage_release(dup);
 }
 
+void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
+{
+	if (degrees != 90 && degrees != 180 && degrees != 270)
+		return; // only support orthogonal rotation
+	
+    if (subrect.size.width != subrect.size.height)
+    {
+        NSLog(@"TODO");
+        return;
+    }
+    
+	int i, j;
+	PXImage *dup = PXImage_copy(self);
+	
+	// update our size if necessary
+	// TODO this will eventually be necessary.
+    
+    int oldWidth = self->width;
+	int oldHeight = self->height;
+	
+	/*if (degrees != 180)
+	{
+		self->height = oldWidth;
+		self->width = oldHeight;
+	}*/
+	
+	for (j = 0; j < oldHeight; j++)
+	{
+		for (i = 0; i < oldWidth; i++)
+		{
+			int x = i, y = j;
+			
+            if (NSPointInRect(NSMakePoint(x, y), subrect)) {
+                if (degrees == 270)
+                {
+                    x = j;
+                    y = subrect.origin.y + subrect.size.height - 1 - (i - subrect.origin.y);
+                }
+                else if (degrees == 180)
+                {
+                    x = subrect.origin.x + subrect.size.width  - 1 - (i - subrect.origin.x);
+                    y = subrect.origin.y + subrect.size.height - 1 - (j - subrect.origin.y);
+                }
+                else if (degrees == 90)
+                {
+                    x = subrect.origin.x + subrect.size.width - 1 - (j - subrect.origin.x);
+                    y = i;
+                }
+            }
+			
+			PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), x, y);
+		}
+	}
+	
+	PXImage_swapTiles(self, dup);
+	PXImage_release(dup);
+}
+
+
 void PXImage_compositeUnderInRect(PXImage *self, PXImage *other, NSRect aRect, BOOL blend)
 {
 	int i, j;

@@ -33,6 +33,7 @@
 
 - (BOOL)containsPoint:(NSPoint)aPoint;
 - (void)rotateByDegrees:(int)degrees;
+- (void)rotateSelectionByDegrees:(int)degrees;
 
 - (void)changedInRect:(NSRect)rect;
 - (void)changed;
