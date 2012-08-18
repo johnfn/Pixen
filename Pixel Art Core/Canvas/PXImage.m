@@ -19,6 +19,8 @@ PXImage *PXImage_alloc(void);
 PXTile *PXImage_tileAtXY(PXImage *self, int xv, int yv);
 void PXImage_swapTiles(PXImage *self, PXImage *other);
 void PXImage_drawRect(PXImage *self, NSRect rect, double opacity);
+NSRect rotateNSRect(NSRect rect, NSRect container, int degrees);
+NSPoint rotatePoint(NSPoint pt, int degrees, NSRect rect);
 
 PXTile* PXTileCreate(CGPoint loc, CGSize size, unsigned char *data)
 {
@@ -574,65 +576,110 @@ void PXImage_rotateByDegrees(PXImage *self, int degrees)
 	PXImage_release(dup);
 }
 
+NSPoint rotatePoint(NSPoint pt, int degrees, NSRect rect)
+{
+    float x = 0, y = 0;
+ 
+    // translate to 0, 0.
+    pt.x -= rect.origin.x;
+    pt.y -= rect.origin.y;
+    
+    if (degrees == 270)
+    {
+        x = pt.y;
+        y = rect.size.height - 1 - pt.x;
+    }
+    else if (degrees == 180)
+    {
+        x = rect.size.width  - 1 - pt.x;
+        y = rect.size.height - 1 - pt.y;
+    }
+    else if (degrees == 90)
+    {
+        x = rect.size.width - 1 - pt.y;
+        y = pt.x;
+    }
+    
+    // Move coordinates back onto selected rect.
+    x += rect.origin.x;
+    y += rect.origin.y;
+    
+    return NSMakePoint(x, y);
+}
+
+NSRect rotateNSRect(volatile NSRect rect, volatile NSRect container, volatile int degrees)
+{
+    //TODO: The case when rect will be outside of the container.
+    
+    NSRect result = NSZeroRect;
+    
+    result.origin = rotatePoint(rect.origin, degrees, container);
+    
+
+    for (int i = 0; i < degrees / 90; i++) {
+        result.size.width = rect.size.height;
+        result.size.height = rect.size.width;
+    }
+    
+    return result;
+}
+
 void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
 {
 	if (degrees != 90 && degrees != 180 && degrees != 270)
 		return; // only support orthogonal rotation
 	
     
-	volatile int i, j;
+    volatile int i, j;
 	PXImage *dup = PXImage_copy(self);
-	
-	// update our size if necessary
-	// TODO this will eventually be necessary.
+    bool touched[self->width * self->height];
+    
+    for (i = 0; i < self->width * self->height; i++) touched[i] = false;
     
     int oldWidth = self->width;
 	int oldHeight = self->height;
-    	
+        
+    //TODO: Handle case where rectangle goes outside of the screen.
+    
 	/*if (degrees != 180)
 	{
 		self->height = oldWidth;
 		self->width = oldHeight;
 	}*/
-	
+    
+    
+    /*if (degrees != 180 && subrect.size.width != subrect.size.height)
+    {
+        // Blank out target with total transparency.
+        
+        for (j = subrect.origin.y; j < subrect.origin.y + subrect.size.height; j++)
+        {
+            for (i = subrect.origin.x; i < subrect.origin.x + subrect.size.width; i++)
+            {
+                PXImage_setColorAtXY(dup, PXColorMake(0, 0, 0, 0), i, j);
+            }
+        }
+    }*/
+	    
 	for (j = 0; j < oldHeight; j++)
 	{
 		for (i = 0; i < oldWidth; i++)
 		{
-            volatile int x = i, y = j;
-			
-            if (NSPointInRect(NSMakePoint(x, y), subrect)) {
+            if (NSPointInRect(NSMakePoint(i, j), subrect)) {
                 // Do rotation at the top left corner so we can use the previous algorithm.
-                //TODO rename
-                volatile int newi, newj;
+                //TODO remove volatiles everywhere.
+                                
+                NSPoint rotatedPoint = rotatePoint(NSMakePoint(i, j), degrees, subrect);
                 
-                newi = i - subrect.origin.x;
-                newj = j - subrect.origin.y;
+                PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), rotatedPoint.x, rotatedPoint.y);
                 
-                x = newi, y = newj;
-                
-                if (degrees == 270)
-                {
-                    x = newj;
-                    y = subrect.size.height - 1 - newi;
-                }
-                else if (degrees == 180)
-                {
-                    x = subrect.size.width  - 1 - newi;
-                    y = subrect.size.height - 1 - newj;
-                }
-                else if (degrees == 90)
-                {
-                    x = subrect.size.width - 1 - newj;
-                    y = newi;
-                }
-                
-                // Move coordinates back onto selected rect.
-                x += subrect.origin.x;
-                y += subrect.origin.y;
+                touched[j * oldHeight + i] = true;
             }
-			
-			PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), x, y);
+            else if (!touched[j * oldHeight + i])
+            {
+                //TODO: IF we won't eventually draw here....
+                PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), i, j);
+            }
 		}
 	}
 	
