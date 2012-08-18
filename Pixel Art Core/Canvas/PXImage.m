@@ -660,29 +660,46 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
             }
         }
     }*/
-	    
+        
 	for (j = 0; j < oldHeight; j++)
 	{
 		for (i = 0; i < oldWidth; i++)
 		{
-            if (NSPointInRect(NSMakePoint(i, j), subrect)) {
+            NSPoint pt = NSMakePoint(i, j);
+            
+            if (NSPointInRect(pt, subrect)) {
                 // Do rotation at the top left corner so we can use the previous algorithm.
                 //TODO remove volatiles everywhere.
                                 
-                NSPoint rotatedPoint = rotatePoint(NSMakePoint(i, j), degrees, subrect);
+                NSPoint rotatedPoint = rotatePoint(pt, degrees, subrect);
                 
                 PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), rotatedPoint.x, rotatedPoint.y);
                 
-                touched[j * oldHeight + i] = true;
+                int idx = (rotatedPoint.y) * oldHeight + (rotatedPoint.x);
+                if (idx > 0 && idx < self->width * self->height) {
+                    touched[idx] = true;
+                }
             }
             else if (!touched[j * oldHeight + i])
             {
-                //TODO: IF we won't eventually draw here....
+                //IF we won't eventually draw here....
                 PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), i, j);
+                touched[j * oldHeight + i] = true;
             }
 		}
 	}
-	
+    
+	for (j = 0; j < oldHeight; j++)
+	{
+		for (i = 0; i < oldWidth; i++)
+		{
+            if (!touched[j * oldHeight + i])
+            {
+                PXImage_setColorAtXY(dup, PXColorMake(0, 0, 0, 0), i, j);
+            }
+        }
+    }
+    
 	PXImage_swapTiles(self, dup);
 	PXImage_release(dup);
 }
