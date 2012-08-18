@@ -579,13 +579,8 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
 	if (degrees != 90 && degrees != 180 && degrees != 270)
 		return; // only support orthogonal rotation
 	
-    if (subrect.size.width != subrect.size.height)
-    {
-        NSLog(@"TODO");
-        return;
-    }
     
-	int i, j;
+	volatile int i, j;
 	PXImage *dup = PXImage_copy(self);
 	
 	// update our size if necessary
@@ -604,24 +599,37 @@ void PXImage_rotateRectByDegrees(PXImage *self, int degrees, NSRect subrect)
 	{
 		for (i = 0; i < oldWidth; i++)
 		{
-            int x = i, y = j;
+            volatile int x = i, y = j;
 			
             if (NSPointInRect(NSMakePoint(x, y), subrect)) {
+                // Do rotation at the top left corner so we can use the previous algorithm.
+                //TODO rename
+                volatile int newi, newj;
+                
+                newi = i - subrect.origin.x;
+                newj = j - subrect.origin.y;
+                
+                x = newi, y = newj;
+                
                 if (degrees == 270)
                 {
-                    x = self->height - j - 1;
-                    y = subrect.origin.y + subrect.size.height - 1 - (i - subrect.origin.x);
+                    x = newj;
+                    y = subrect.size.height - 1 - newi;
                 }
                 else if (degrees == 180)
                 {
-                    x = subrect.origin.x + subrect.size.width  - 1 - (i - subrect.origin.x);
-                    y = subrect.origin.y + subrect.size.height - 1 - (j - subrect.origin.y);
+                    x = subrect.size.width  - 1 - newi;
+                    y = subrect.size.height - 1 - newj;
                 }
                 else if (degrees == 90)
                 {
-                    x = subrect.origin.x + subrect.size.width - 1 - (j - subrect.origin.y);
-                    y = self->height - i - 1;
+                    x = subrect.size.width - 1 - newj;
+                    y = newi;
                 }
+                
+                // Move coordinates back onto selected rect.
+                x += subrect.origin.x;
+                y += subrect.origin.y;
             }
 			
 			PXImage_setColorAtXY(dup, PXImage_colorAtXY(self, i, j), x, y);
